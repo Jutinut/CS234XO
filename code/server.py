@@ -204,8 +204,6 @@ def main():
                                 if not isPlay:
                                     if player_mark['X'] == '':
                                         player_mark['X'] = senderName
-                                    if player_mark['X'] == '':
-                                        player_mark['X'] = senderName
 
                                         # <<< เพิ่มส่ง "Waiting for another player"
                                         receiverConnection = online_client_connection[senderName]
@@ -218,7 +216,6 @@ def main():
                                         payload_string = json.dumps(payload)
                                         receiverConnection.send(bytes(payload_string, 'utf-8'))
 
-                                        
                                     elif player_mark['O'] == '':
                                         player_mark['O'] = senderName
                                         isPlay = True
@@ -340,6 +337,7 @@ def main():
                                     isPlay = False
                                 else:
                                     if mark == 'X':
+                                        # ส่งให้ฝั่ง O (เล่นต่อ)
                                         receiverConnection = online_client_connection[player_mark['O']]
                                         payload = {
                                             'status': 200,
@@ -353,17 +351,20 @@ def main():
                                         payload_string = json.dumps(payload)
                                         receiverConnection.send(bytes(payload_string, 'utf-8'))
 
-                                        # Player two wait to play
-                                        receiverConnection = online_client_connection[player_mark['X']]
+                                        # ✅ ส่งให้ตัวเอง (X) ดู board ที่อัปเดต
+                                        senderConnection = online_client_connection[senderName]
                                         payload = {
                                             'status': 200,
                                             'msg': 'PLAY',
                                             'sender': senderName,
+                                            'board': board,
                                             'message': "Waiting for another player"
                                         }
                                         payload_string = json.dumps(payload)
-                                        receiverConnection.send(bytes(payload_string, 'utf-8'))
+                                        senderConnection.send(bytes(payload_string, 'utf-8'))
+
                                     else:
+                                        # ส่งให้ฝั่ง X (เล่นต่อ)
                                         receiverConnection = online_client_connection[player_mark['X']]
                                         payload = {
                                             'status': 200,
@@ -377,16 +378,19 @@ def main():
                                         payload_string = json.dumps(payload)
                                         receiverConnection.send(bytes(payload_string, 'utf-8'))
 
-                                        # Player two wait to play
-                                        receiverConnection = online_client_connection[player_mark['O']]
+                                        # ✅ ส่งให้ตัวเอง (O) ดู board ที่อัปเดต
+                                        senderConnection = online_client_connection[senderName]
                                         payload = {
                                             'status': 200,
                                             'msg': 'PLAY',
                                             'sender': senderName,
+                                            'board': board,
                                             'message': "Waiting for another player"
                                         }
                                         payload_string = json.dumps(payload)
-                                        receiverConnection.send(bytes(payload_string, 'utf-8'))
+                                        senderConnection.send(bytes(payload_string, 'utf-8'))
+
+
                             
                             elif(payloadType == 'test_server'):
                                 sender = payload['sender']

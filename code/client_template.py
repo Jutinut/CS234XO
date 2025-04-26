@@ -63,6 +63,7 @@ def startPlaying(client_tcp, SENDER_NAME):
         if data_json["msg"] == "DONE_PLAY":
             if 'board' in data_json:
             # ถ้า server บอกว่าจบเกมแล้ว
+                print("=" * 33) # เพิ่มขีดเองงงงง
                 print_board(data_json.get('board', [[' ']*3]*3))
             print(data_json["message"])
             break
@@ -90,6 +91,7 @@ def startPlaying(client_tcp, SENDER_NAME):
 
                 # วางตัวลงกระดาน
                 data_json['board'][x][y] = data_json['mark']
+                print_board(data_json['board'])     # <<< ✅ เพิ่มตรงนี้
 
                 # ส่งข้อมูลกลับไป server
                 client_tcp.send(payloadByte(
@@ -104,6 +106,7 @@ def startPlaying(client_tcp, SENDER_NAME):
 
             else:
                 # ยังไม่ถึงตาเรา รอข้อมูลใหม่
+                
                 print(data_json["message"])
                 # รอข้อมูลรอบใหม่
                 continue
@@ -143,7 +146,7 @@ def main():
         choice = getChoice(
             '_____ Welcome to XO game _____\n1. Play \n2. See the score\n3. Exit\n_____________________________________', 
             'Enter your choice (1 or 2 or 3): ', 
-            2
+            3
         )
         if choice == 1:
             startPlaying(client_tcp, SENDER_NAME)
