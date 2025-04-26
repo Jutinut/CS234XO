@@ -204,6 +204,20 @@ def main():
                                 if not isPlay:
                                     if player_mark['X'] == '':
                                         player_mark['X'] = senderName
+                                    if player_mark['X'] == '':
+                                        player_mark['X'] = senderName
+
+                                        # <<< เพิ่มส่ง "Waiting for another player"
+                                        receiverConnection = online_client_connection[senderName]
+                                        payload = {
+                                            'status': 200,
+                                            'msg': 'PLAY',
+                                            'sender': senderName,
+                                            'message': "Waiting for another player to join..."
+                                        }
+                                        payload_string = json.dumps(payload)
+                                        receiverConnection.send(bytes(payload_string, 'utf-8'))
+
                                         
                                     elif player_mark['O'] == '':
                                         player_mark['O'] = senderName

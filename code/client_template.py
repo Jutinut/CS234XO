@@ -103,8 +103,11 @@ def startPlaying(client_tcp, SENDER_NAME):
                 ))
 
             else:
-                # ยังไม่ถึงตาเรา
+                # ยังไม่ถึงตาเรา รอข้อมูลใหม่
                 print(data_json["message"])
+                # รอข้อมูลรอบใหม่
+                continue
+
 
 
 def seeTheScore(client_tcp, SENDER_NAME):
