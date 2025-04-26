@@ -204,6 +204,7 @@ def main():
                                 if not isPlay:
                                     if player_mark['X'] == '':
                                         player_mark['X'] = senderName
+                                        
                                     elif player_mark['O'] == '':
                                         player_mark['O'] = senderName
                                         isPlay = True
@@ -259,8 +260,8 @@ def main():
                                         receiverConnection.send(bytes(payload_string, 'utf-8'))
                             elif(payloadType == 'take_turn'):
                                 senderName = payload['sender']
-                                board = payload['board']
-                                mark = payload['mark']
+                                board = payload['data']['board']
+                                mark = payload['data']['mark']
                                 if check_winner(board, mark) == True:
                                     if mark == 'X':
                                         receiver = player_mark['O']
