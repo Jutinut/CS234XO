@@ -53,58 +53,59 @@ def testConnectToServer(client_tcp, SENDER_NAME):
     data_bytes = client_tcp.recv(1024)
 
 def startPlaying(client_tcp, SENDER_NAME):
-    payload = payloadByte(SENDER_NAME, 'server', 'play')
-    client_tcp.send(payload)
+    # ขอเริ่มเกม
+    client_tcp.send(payloadByte(SENDER_NAME, 'server', 'play'))
 
     while True:
-        data_bytes = client_tcp.recv(2048)
-        response = byteToJson(data_bytes)
+        data_bytes = client_tcp.recv(4096)
+        data_json = byteToJson(data_bytes)
 
-        msg = response.get('msg', '')
-
-        if msg == 'DONE_PLAY':
-            print()
-            if 'board' in response:
-                print_board(response['board'])
-            print(response.get('message', 'Game finished.'))
+        if data_json["msg"] == "DONE_PLAY":
+            if 'board' in data_json:
+            # ถ้า server บอกว่าจบเกมแล้ว
+                print_board(data_json.get('board', [[' ']*3]*3))
+            print(data_json["message"])
             break
 
-        elif msg == 'PLAY':
-            print()
-            if 'board' in response and 'mark' in response:
-                mark = response['mark']
-                board = response['board']
-                print_board(board)
-                print()
+        elif data_json["msg"] == "PLAY":
+            if data_json.get("task") == "selectplace":
+                # ถึงตาเราเล่น
+                print_board(data_json['board'])
+                print("\nYour turn (" + data_json["mark"] + ")")
+                print(data_json["message"])
 
-                # รับตำแหน่งจากผู้เล่น
+                # รับตำแหน่ง
                 while True:
                     try:
-                        pos = input("Enter row and column (0-2) separated by space: ").split()
-                        x, y = int(pos[0]), int(pos[1])
-                        if board[x][y] == ' ':
-                            board[x][y] = mark
+                        move = input("Enter row and column (0-2) separated by space: ").split()
+                        if len(move) != 2:
+                            raise ValueError
+                        x, y = int(move[0]), int(move[1])
+                        if 0 <= x <= 2 and 0 <= y <= 2 and data_json['board'][x][y] == ' ':
                             break
                         else:
-                            print("That cell is already taken. Try again.")
+                            print("Invalid position or already taken. Try again.")
                     except:
-                        print("Invalid input. Try again (e.g. 1 2).")
+                        print("Please enter two numbers between 0-2.")
 
-                # ส่งกลับไปยัง server
-                data = {
-                    'board': board,
-                    'mark': mark,
-                    'data': 'take_turn'
-                }
-                payload = payloadByte(SENDER_NAME, 'server', 'take_turn', data)
-                client_tcp.send(payload)
+                # วางตัวลงกระดาน
+                data_json['board'][x][y] = data_json['mark']
 
-            elif 'message' in response:
-                print(response['message'])
+                # ส่งข้อมูลกลับไป server
+                client_tcp.send(payloadByte(
+                    SENDER_NAME,
+                    'server',
+                    'take_turn',
+                    {
+                        'board': data_json['board'],
+                        'mark': data_json['mark']
+                    }
+                ))
 
-        else:
-            print("Unknown message from server:", response)
-            break
+            else:
+                # ยังไม่ถึงตาเรา
+                print(data_json["message"])
+
 
 def seeTheScore(client_tcp, SENDER_NAME):
     # ขอข้อมูลคะแนนจาก server
